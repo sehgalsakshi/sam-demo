@@ -1,0 +1,273 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'sam-python-crud-sample
+
+  SAM Template for sam-python-crud-sample
+
+  '
+Globals:
+  Function:
+    Timeout: 60
+Parameters:
+  Table:
+    Type: String
+    Default: Users
+  Region:
+    Type: String
+    Default: us-east-1
+  AWSEnv:
+    Type: String
+    Default: AWS
+Resources:
+  CreateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://demo-sam-bucket23/6892c259e649e46a7f854a45531921e5
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          TABLE:
+            Ref: Table
+          REGION:
+            Ref: Region
+          AWSENV:
+            Ref: AWSEnv
+      Events:
+        CreateUsers:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: post
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+  LoginUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://demo-sam-bucket23/fada76bce19393f440847f69fdfec0ff
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          TABLE:
+            Ref: Table
+          REGION:
+            Ref: Region
+          AWSENV:
+            Ref: AWSEnv
+      Events:
+        LoginUser:
+          Type: Api
+          Properties:
+            Path: /loginUser
+            Method: post
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+  GetUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://demo-sam-bucket23/4a2ddd5635db0c45ee47e75fdfc799ed
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          TABLE:
+            Ref: Table
+          REGION:
+            Ref: Region
+          AWSENV:
+            Ref: AWSEnv
+      Events:
+        CreateUsers:
+          Type: Api
+          Properties:
+            Path: /users/{id}
+            Method: get
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+  ListUsersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://demo-sam-bucket23/55859160686193b712d1ff8ec3735269
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          TABLE:
+            Ref: Table
+          REGION:
+            Ref: Region
+          AWSENV:
+            Ref: AWSEnv
+      Events:
+        CreateUsers:
+          Type: Api
+          Properties:
+            Path: /users/
+            Method: get
+      Policies:
+      - DynamoDBScanPolicy:
+          TableName:
+            Ref: UsersTable
+  UpdateUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://demo-sam-bucket23/7cd33bdead3a780d82a2a91e72f48531
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          TABLE:
+            Ref: Table
+          REGION:
+            Ref: Region
+          AWSENV:
+            Ref: AWSEnv
+      Events:
+        CreateUsers:
+          Type: Api
+          Properties:
+            Path: /users/{id}
+            Method: put
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://demo-sam-bucket23/ea00699f327d455932f0ce7e9bf10e1c
+      Handler: app.lambda_handler
+      Runtime: python3.6
+      Environment:
+        Variables:
+          TABLE:
+            Ref: Table
+          REGION:
+            Ref: Region
+          AWSENV:
+            Ref: AWSEnv
+      Events:
+        CreateUsers:
+          Type: Api
+          Properties:
+            Path: /users/{id}/{date}
+            Method: delete
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: tenant_id
+        AttributeType: S
+      - AttributeName: username
+        AttributeType: S
+      KeySchema:
+      - AttributeName: tenant_id
+        KeyType: HASH
+      - AttributeName: username
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: '1'
+        WriteCapacityUnits: '1'
+      TableName: Users
+Outputs:
+  UsersApi:
+    Description: API Gateway endpoint URL for Prod stage for Create User Function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/users/
+  LoginUserApi:
+    Description: API Gateway endpoint URL for Prod stage for Login User Function
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/loginUser/
+  CreateUserFunction:
+    Description: Create User Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - CreateUserFunction
+      - Arn
+  CreateUserFunctionIamRole:
+    Description: Implicit IAM Role created for Create User function
+    Value:
+      Fn::GetAtt:
+      - CreateUserFunctionRole
+      - Arn
+  LoginUserFunction:
+    Description: Login User Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - LoginUserFunction
+      - Arn
+  LoginUserFunctionIamRole:
+    Description: Implicit IAM Role created for Login User function
+    Value:
+      Fn::GetAtt:
+      - LoginUserFunctionRole
+      - Arn
+  GetUserFunction:
+    Description: Get User Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - GetUserFunction
+      - Arn
+  GetUserFunctionIamRole:
+    Description: Implicit IAM Role created for Get User function
+    Value:
+      Fn::GetAtt:
+      - GetUserFunctionRole
+      - Arn
+  ListUsersFunction:
+    Description: List Users Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - ListUsersFunction
+      - Arn
+  ListUsersFunctionIamRole:
+    Description: Implicit IAM Role created for List Users function
+    Value:
+      Fn::GetAtt:
+      - ListUsersFunctionRole
+      - Arn
+  UpdateUserFunction:
+    Description: Update User Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - UpdateUserFunction
+      - Arn
+  UpdateUserFunctionIamRole:
+    Description: Implicit IAM Role created for Update User function
+    Value:
+      Fn::GetAtt:
+      - UpdateUserFunctionRole
+      - Arn
+  DeleteUserFunction:
+    Description: Delete User Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - DeleteUserFunction
+      - Arn
+  DeleteUserFunctionIamRole:
+    Description: Implicit IAM Role created for Delete User function
+    Value:
+      Fn::GetAtt:
+      - DeleteUserFunctionRole
+      - Arn
+  UsersTable:
+    Description: DynamoDB Table
+    Value:
+      Ref: UsersTable
+  UsersTableArn:
+    Description: DynamoDB Table ARN
+    Value:
+      Fn::GetAtt:
+      - UsersTable
+      - Arn
